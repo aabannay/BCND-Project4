@@ -4,36 +4,40 @@
 
 const level = require('level');
 const chainDB = './chaindata';
-const db = level(chainDB);
 
-// Add data to levelDB with key/value pair
-function addLevelDBData(key,value){
-  db.put(key, value, function(err) {
-    if (err) return console.log('Block ' + key + ' submission failed', err);
-  })
-}
+class LevelSandbox {
+  constructor() {
+    this.db = level(chainDB);
+  }
+  // Add data to levelDB with key/value pair
+  addLevelDBData(key,value){
+    this.db.put(key, value, function(err) {
+      if (err) return console.log('Block ' + key + ' submission failed', err);
+    })
+  }
 
-// Get data from levelDB with key
-function getLevelDBData(key){
-  db.get(key, function(err, value) {
-    if (err) return console.log('Not found!', err);
-    console.log('Value = ' + value);
-  })
-}
+  // Get data from levelDB with key
+  getLevelDBData(key){
+    this.db.get(key, function(err, value) {
+      if (err) return console.log('Not found!', err);
+      console.log('Value = ' + value);
+    })
+  }
 
-// Add data to levelDB with value
-function addDataToLevelDB(value) {
+  // Add data to levelDB with value
+  addDataToLevelDB(value) {
+    const self = this; 
     let i = 0;
-    db.createReadStream().on('data', function(data) {
+    this.db.createReadStream().on('data', function(data) {
           i++;
         }).on('error', function(err) {
             return console.log('Unable to read data stream!', err)
         }).on('close', function() {
           console.log('Block #' + i);
-          addLevelDBData(i, value);
+          self.addLevelDBData(i, value);
         });
+  }
 }
-
 /* ===== Testing ==============================================================|
 |  - Self-invoking function to add blocks to chain                             |
 |  - Learn more:                                                               |
@@ -46,9 +50,12 @@ function addDataToLevelDB(value) {
 |  ===========================================================================*/
 
 
+//const LevelSandboxClass = require('LevelSandbox');
+const db = new LevelSandbox();
 (function theLoop (i) {
+
   setTimeout(function () {
-    addDataToLevelDB('Testing data');
+    db.addDataToLevelDB('Testing data');
     if (--i) theLoop(i);
   }, 100);
 })(10);
