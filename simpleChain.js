@@ -4,9 +4,14 @@
 
 const SHA256 = require('crypto-js/sha256');
 
+/* ===== levelSandbox with level ============================
+|  This is needed to presist the data using levelDB         |
+|  ========================================================*/
+
+const db = require('./levelSandbox');
 
 /* ===== Block Class ==============================
-|  Class with a constructor for block 			   |
+|  Class with a constructor for block 			      |
 |  ===============================================*/
 
 class Block{
@@ -20,7 +25,7 @@ class Block{
 }
 
 /* ===== Blockchain Class ==========================
-|  Class with a constructor for new blockchain 		|
+|  Class with a constructor for new blockchain 		 |
 |  ================================================*/
 
 class Blockchain{
@@ -28,7 +33,6 @@ class Blockchain{
     this.chain = [];
     this.addBlock(new Block("First block in the chain - Genesis block"));
   }
-
   // Add new block
   addBlock(newBlock){
     // Block hash with SHA256 using newBlock and converting to a string
@@ -43,6 +47,12 @@ class Blockchain{
     }
     // Adding block object to chain
   	this.chain.push(newBlock);
+    db.addDataToLevelDB(newBlock.height, JSON.stringify(newBlock).toString())
+      .then((result) => {
+        console.log("added data: " + result.toString());
+      }).catch((err) => {
+        console.log("Error in addiing to database", err);
+      });
   }
 
   // Get block height
