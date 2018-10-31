@@ -7,7 +7,7 @@ const chainDB = './chaindata';
 const db = level(chainDB);
 
 // Add data to levelDB with key/value pair
-addLevelDBData(key,value){
+function addLevelDBData(key,value){
   let self = this; 
   return new Promise((resolve, reject) => {
     self.db.put(key, value, (err) => {
@@ -16,12 +16,12 @@ addLevelDBData(key,value){
         reject(err);
       }
       resolve(value);
-    })
+    });
   });
 }
 
 // Get data from levelDB with key
-getLevelDBData(key){
+function getLevelDBData(key){
   let self = this;
   return Promise((resolve, reject) => {
     self.db.get(key, (err, value) => {
@@ -41,7 +41,7 @@ getLevelDBData(key){
 }
 
 // Add data to levelDB with value
-addDataToLevelDB(value) {
+function addDataToLevelDB(value) {
   let self = this; 
   let i = 0;
   return new Promise ((resolve, reject) => {
