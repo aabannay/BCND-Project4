@@ -38,7 +38,9 @@ class Blockchain{
     // Block hash with SHA256 using newBlock and converting to a string
     newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
     // Block height
-    newBlock.height = this.chain.length;
+    getBlockHeight().then((height) => {
+      newBlock.height = height + 1;
+    });
     // UTC timestamp
     newBlock.time = new Date().getTime().toString().slice(0,-3);
     // previous block hash
@@ -46,7 +48,7 @@ class Blockchain{
       newBlock.previousBlockHash = this.chain[this.chain.length-1].hash;
     }
     // Adding block object to chain
-  	this.chain.push(newBlock);
+  	//this.chain.push(newBlock);
     db.addDataToLevelDB(newBlock.height, JSON.stringify(newBlock).toString())
       .then((result) => {
         console.log("added data: " + result.toString());
@@ -57,19 +59,31 @@ class Blockchain{
 
   // Get block height
     getBlockHeight(){
-      return this.chain.length-1;
+      let self = this; 
+      return new Promise((resolve, reject) => {
+        resolve(self.chain.length-1);
+      });
     }
 
     // get block
     getBlock(blockHeight){
       // return object as a single string
-      return JSON.parse(JSON.stringify(this.chain[blockHeight]));
+      //return JSON.parse(JSON.stringify(this.chain[blockHeight]));
+      return new Promise((resolve, reject) => {
+            db.get(key, (err, value) => {
+                if (err) return console.log('Not found!', err);
+                resolve(value);
+            });
+        })
     }
 
     // validate block
     validateBlock(blockHeight){
       // get block object
-      let block = this.getBlock(blockHeight);
+      let block = null; 
+      this.getBlock(blockHeight).then((result) => {
+        block = result;
+      });
       // get block hash
       let blockHash = block.hash;
       // remove block hash to test block integrity
@@ -80,12 +94,15 @@ class Blockchain{
       // generate block hash
       let validBlockHash = SHA256(JSON.stringify(block)).toString();
       // Compare
-      if (blockHash===validBlockHash) {
-          return true;
+      return new Promise ((resolve, reject) => {
+        if (blockHash===validBlockHash) {
+            resolve(true);
         } else {
-          console.log('Block #'+blockHeight+' invalid hash:\n'+blockHash+'<>'+validBlockHash);
-          return false;
+            console.log('Block #'+blockHeight+' invalid hash:\n'+blockHash+'<>'+validBlockHash);
+            resolve(false);
         }
+      });
+       
     }
 
    // Validate blockchain
@@ -93,7 +110,12 @@ class Blockchain{
       let errorLog = [];
       for (var i = 0; i < this.chain.length-1; i++) {
         // validate block
-        if (!this.validateBlock(i))errorLog.push(i);
+        let isValid = undefined; 
+        this.validateBlock(i).then((result) => {
+          isValid = result; 
+        });
+        if (!isValid)
+          errorLog.push(i);
         // compare blocks hash link
         let blockHash = this.chain[i].hash;
         let previousHash = this.chain[i+1].previousBlockHash;
