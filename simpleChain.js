@@ -31,6 +31,8 @@ class Blockchain{
 
   // Add new block
   addBlock(newBlock){
+    // Block hash with SHA256 using newBlock and converting to a string
+    newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
     // Block height
     newBlock.height = this.chain.length;
     // UTC timestamp
@@ -39,8 +41,6 @@ class Blockchain{
     if(this.chain.length>0){
       newBlock.previousBlockHash = this.chain[this.chain.length-1].hash;
     }
-    // Block hash with SHA256 using newBlock and converting to a string
-    newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
     // Adding block object to chain
   	this.chain.push(newBlock);
   }
@@ -64,6 +64,9 @@ class Blockchain{
       let blockHash = block.hash;
       // remove block hash to test block integrity
       block.hash = '';
+      //set time to 0 if this is the Genesis Block (so it validate)
+      if (blockHeight == 0)
+        block.time = 0; 
       // generate block hash
       let validBlockHash = SHA256(JSON.stringify(block)).toString();
       // Compare
