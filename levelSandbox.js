@@ -11,31 +11,53 @@ class LevelSandbox {
   }
   // Add data to levelDB with key/value pair
   addLevelDBData(key,value){
-    this.db.put(key, value, function(err) {
-      if (err) return console.log('Block ' + key + ' submission failed', err);
-    })
+    let self = this; 
+    return new Promise((resolve, reject) => {
+      self.db.put(key, value, (err) => {
+        if (err) {
+          console.log('Block ' + key + ' submission failed', err);
+          reject(err);
+        }
+        resolve(value);
+      })
+    });
   }
 
   // Get data from levelDB with key
   getLevelDBData(key){
-    this.db.get(key, function(err, value) {
-      if (err) return console.log('Not found!', err);
-      console.log('Value = ' + value);
-    })
+    let self = this;
+    return Promise((resolve, reject) => {
+      self.db.get(key, (err, value) => {
+        if (err) {
+          if(err.type == 'notFoundError') {
+            resolve(undefined);
+          } else {
+            console.log('Not found!', err);
+            reject(err);
+          }
+        } else {
+            console.log('Value = ' + value);
+            resolve(value);
+        }
+      });
+    });
   }
 
   // Add data to levelDB with value
   addDataToLevelDB(value) {
-    const self = this; 
+    let self = this; 
     let i = 0;
-    this.db.createReadStream().on('data', function(data) {
-          i++;
-        }).on('error', function(err) {
-            return console.log('Unable to read data stream!', err)
-        }).on('close', function() {
-          console.log('Block #' + i);
-          self.addLevelDBData(i, value);
-        });
+    return new Promise ((resolve, reject) => {
+      self.db.createReadStream().on('data', (data) => {
+            i++;
+          }).on('error', (err) => {
+             console.log('Unable to read data stream!', err);
+             reject(err); 
+          }).on('close', () => {
+            console.log('Block #' + i);
+            resolve(self.addLevelDBData(i, value));
+          });
+    });
   }
 }
 /* ===== Testing ==============================================================|
@@ -53,9 +75,10 @@ class LevelSandbox {
 //const LevelSandboxClass = require('LevelSandbox');
 const db = new LevelSandbox();
 (function theLoop (i) {
-
   setTimeout(function () {
-    db.addDataToLevelDB('Testing data');
+    db.addDataToLevelDB('Testing data').then((value) =>{
+      //console.log('value returned by Promise' + value);
+    });
     if (--i) theLoop(i);
   }, 100);
 })(10);
