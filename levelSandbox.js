@@ -25,7 +25,7 @@ function getLevelDBData(key){
   //console.log('inside getLevelDBData with key: ' + key);
   return new Promise((resolve, reject) => {
     db.get(key, function (err, value) {
-      if (err) reject(err);/*{
+      if (err){
         if(err.type == 'notFoundError') {
           console.log("ERROR UNDEFINED");
           resolve(undefined);
@@ -33,11 +33,8 @@ function getLevelDBData(key){
           console.log('Not found!', err);
           reject(err);
         }
-      } */
-        console.log('resolved');
-        //console.log(value);
-        resolve(value);
-      
+      }
+      resolve(value);
     })
   });
 }
