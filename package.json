@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/aabannay/BCND-Project2#readme",
   "dependencies": {
+    "JSON": "^1.0.0",
     "crypto-js": "^3.1.9-1",
     "level": "^4.0.0"
   }

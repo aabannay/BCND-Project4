@@ -22,20 +22,23 @@ module.exports.addLevelDBData = addLevelDBData;
 
 // Get data from levelDB with key
 function getLevelDBData(key){
+  console.log('inside getLevelDBData with key: ' + key);
   return new Promise((resolve, reject) => {
-    db.get(key, (err, value) => {
-      if (err) {
+    db.get(key, function (err, value) {
+      if (err) reject(err);/*{
         if(err.type == 'notFoundError') {
+          console.log("ERROR UNDEFINED");
           resolve(undefined);
         } else {
           console.log('Not found!', err);
           reject(err);
         }
-      } else {
-          console.log('Value = ' + value);
-          resolve(value);
-      }
-    });
+      } */
+        console.log('resolved');
+        console.log(value);
+        resolve(value);
+      
+    })
   });
 }
 module.exports.getLevelDBData = getLevelDBData;
@@ -51,11 +54,35 @@ function addDataToLevelDB(value) {
            reject(err); 
         }).on('close', () => {
           console.log('Block #' + i);
-          resolve(self.addLevelDBData(i, value));
+          resolve(addLevelDBData(i, value));
         });
   });
 }
 module.exports.addDataToLevelDB = addDataToLevelDB;
+
+//this method will return the number of blocks in the db
+function getBlocksCount() {
+  let blockCount = 0; 
+  // Add your code here
+  return new Promise(function(resolve, reject){
+      db.createReadStream()
+      .on('data', function (data) {
+            // Count each object inserted
+            blockCount++; 
+       })
+      .on('error', function (err) {
+          // reject with error
+          reject(err);
+       })
+       .on('close', function () {
+          //resolve with the count value
+          resolve(blockCount);
+      });
+  });
+}
+module.exports.getBlocksCount = getBlocksCount;
+
+
 
 /* ===== Testing ==============================================================|
 |  - Self-invoking function to add blocks to chain                             |
@@ -67,13 +94,12 @@ module.exports.addDataToLevelDB = addDataToLevelDB;
 |    Bitcoin blockchain adds 8640 blocks per day                               |
 |     ( new block every 10 minutes )                                           |
 |  ===========================================================================*/
-
 /*
-const db = new LevelSandbox();
 (function theLoop (i) {
   setTimeout(function () {
-    db.addDataToLevelDB('Testing data').then((value) =>{
+    addDataToLevelDB('Testing data' + i).then((value) =>{
       //something to do with value i.e. result?
+      console.log(value);
     });
     if (--i) theLoop(i);
   }, 100);
