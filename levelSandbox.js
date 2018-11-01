@@ -35,7 +35,7 @@ function getLevelDBData(key){
         }
       } */
         console.log('resolved');
-        console.log(value);
+        //console.log(value);
         resolve(value);
       
     })

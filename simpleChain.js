@@ -29,14 +29,19 @@ class Block{
 
 class Blockchain{
   constructor(){
-    console.log('new block created');
-    this.chain = [];
+    console.log('new blockchain created');
+    //this.chain = [];
     //this.addBlock(new Block("First block in the chain - Genesis block"));
-    this.addGenesisBlock().then((result) => {
-      console.log("Genesis Block added: " + result);
-    }).catch((err) => {
-      console.log(err);
+    this.getBlockHeight().then((height) => {
+      if (height === 0){
+        this.addGenesisBlock().then((result) => {
+          console.log("Genesis Block added: " + result);
+        }).catch((err) => {
+          console.log(err);
+        });
+      }
     });
+    
   }
 
   addGenesisBlock(){
@@ -68,7 +73,7 @@ class Blockchain{
         console.log(height + " is the current height");
         // previous block hash
         this.getBlock(height).then((previousBlock) => {
-          console.log("inside getBlock; previousBlock: " + previousBlock);
+          //console.log("inside getBlock; previousBlock: " + previousBlock);
           // UTC timestamp
           newBlock.time = new Date().getTime().toString().slice(0,-3);
           newBlock.previousBlockHash = JSON.parse(previousBlock).hash;
@@ -96,7 +101,7 @@ class Blockchain{
       let self = this; 
       return new Promise((resolve, reject) => {
         db.getBlocksCount().then((result) => {
-          console.log('block count: ' + result);
+          //console.log('block count: ' + result);
           resolve(JSON.parse(result));
 
         });
@@ -177,7 +182,7 @@ let myBlockChain = new Blockchain();
     setTimeout(function () {
         let blockTest = new Block("Test Block - " + (i + 1));
         myBlockChain.addBlock(blockTest).then((result) => {
-          console.log("RESULT: "+result);
+          //console.log("RESULT: "+result);
             i++;
             if (i < 10) theLoop(i);
         });
