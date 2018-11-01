@@ -31,14 +31,14 @@ class Block{
 class Blockchain{
   constructor(){
     this.chain = [];
-    this.addBlock(new Block("First block in the chain - Genesis block"));
+    //this.addBlock(new Block("First block in the chain - Genesis block"));
   }
   // Add new block
   addBlock(newBlock){
     // Block hash with SHA256 using newBlock and converting to a string
     newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
     // Block height
-    getBlockHeight().then((height) => {
+    this.getBlockHeight().then((height) => {
       newBlock.height = height + 1;
     });
     // UTC timestamp
@@ -49,12 +49,16 @@ class Blockchain{
     }
     // Adding block object to chain
   	//this.chain.push(newBlock);
-    db.addDataToLevelDB(newBlock.height, JSON.stringify(newBlock).toString())
-      .then((result) => {
-        console.log("added data: " + result.toString());
-      }).catch((err) => {
-        console.log("Error in addiing to database", err);
-      });
+    return new Promise ((resolve, reject) => {
+      db.addLevelDBData(newBlock.height, JSON.stringify(newBlock).toString())
+        .then((result) => {
+          console.log("added data: " + result.toString());
+          resolve(result);
+        }).catch((err) => {
+          console.log("Error in addiing to database", err);
+          reject(err);
+        });
+    });
   }
 
   // Get block height
@@ -132,13 +136,14 @@ class Blockchain{
     }
 }
 
-(function theLoop (i) {
+let myBlockChain = new Blockchain();
+(function theLoop (i) { 
     setTimeout(function () {
-        let blockTest = new Block.Block("Test Block - " + (i + 1));
-        myBlockChain.addNewBlock(blockTest).then((result) => {
+        let blockTest = new Block("Test Block - " + (i + 1));
+        myBlockChain.addBlock(blockTest).then((result) => {
             console.log(result);
             i++;
             if (i < 10) theLoop(i);
         });
-    }, 10000);
+    }, 1000);
   })(0);

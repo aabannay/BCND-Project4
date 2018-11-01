@@ -8,9 +8,8 @@ const db = level(chainDB);
 
 // Add data to levelDB with key/value pair
 function addLevelDBData(key,value){
-  let self = this; 
   return new Promise((resolve, reject) => {
-    self.db.put(key, value, (err) => {
+    db.put(key, value, (err) => {
       if (err) {
         console.log('Block ' + key + ' submission failed', err);
         reject(err);
@@ -19,12 +18,12 @@ function addLevelDBData(key,value){
     });
   });
 }
+module.exports.addLevelDBData = addLevelDBData;
 
 // Get data from levelDB with key
 function getLevelDBData(key){
-  let self = this;
-  return Promise((resolve, reject) => {
-    self.db.get(key, (err, value) => {
+  return new Promise((resolve, reject) => {
+    db.get(key, (err, value) => {
       if (err) {
         if(err.type == 'notFoundError') {
           resolve(undefined);
@@ -39,13 +38,13 @@ function getLevelDBData(key){
     });
   });
 }
+module.exports.getLevelDBData = getLevelDBData;
 
 // Add data to levelDB with value
 function addDataToLevelDB(value) {
-  let self = this; 
   let i = 0;
   return new Promise ((resolve, reject) => {
-    self.db.createReadStream().on('data', (data) => {
+    db.createReadStream().on('data', (data) => {
           i++;
         }).on('error', (err) => {
            console.log('Unable to read data stream!', err);
@@ -56,6 +55,7 @@ function addDataToLevelDB(value) {
         });
   });
 }
+module.exports.addDataToLevelDB = addDataToLevelDB;
 
 /* ===== Testing ==============================================================|
 |  - Self-invoking function to add blocks to chain                             |
