@@ -125,27 +125,27 @@ class Blockchain{
     // validate block
     validateBlock(blockHeight){
       // get block object
-      let block = null; 
-      this.getBlock(blockHeight).then((result) => {
-        block = result;
-      });
-      // get block hash
-      let blockHash = block.hash;
-      // remove block hash to test block integrity
-      block.hash = '';
-      //set time to 0 if this is the Genesis Block (so it validate)
-      if (blockHeight == 0)
-        block.time = 0; 
-      // generate block hash
-      let validBlockHash = SHA256(JSON.stringify(block)).toString();
-      // Compare
-      return new Promise ((resolve, reject) => {
-        if (blockHash===validBlockHash) {
-            resolve(true);
-        } else {
-            console.log('Block #'+blockHeight+' invalid hash:\n'+blockHash+'<>'+validBlockHash);
-            resolve(false);
-        }
+      return new Promise ((resolve, reject) => { 
+        this.getBlock(blockHeight).then((result) => {
+          let block = JSON.parse(result);
+          // get block hash
+          let blockHash = block.hash;
+          // remove block hash to test block integrity
+          block.hash = '';
+          //set time to 0 if this is the Genesis Block (so it validate)
+          //if (blockHeight == 0)
+          //block.time = 0; 
+          // generate block hash
+          let validBlockHash = SHA256(JSON.stringify(block)).toString();
+          // Compare
+          if (blockHash===validBlockHash) {
+              resolve(true);
+          } else {
+              console.log('Block #'+blockHeight+' invalid hash:\n'+blockHash+'<>'+validBlockHash);
+              resolve(false);
+          }
+        });
+        
       });
        
     }
@@ -180,11 +180,17 @@ class Blockchain{
 let myBlockChain = new Blockchain();
 (function theLoop (i) { 
     setTimeout(function () {
-        let blockTest = new Block("Test Block - " + (i + 1));
+        /*let blockTest = new Block("Test Block - " + (i + 1));
         myBlockChain.addBlock(blockTest).then((result) => {
           //console.log("RESULT: "+result);
             i++;
             if (i < 10) theLoop(i);
+        });
+        */
+        myBlockChain.validateBlock(i+1).then((result) => {
+          console.log("Block-" + (i+1) + ": " + result);
+          i++;
+          if (i < 10) theLoop(i);
         });
     }, 1000);
   })(0);
