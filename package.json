@@ -1,7 +1,7 @@
 {
-  "name": "project_2",
+  "name": "project_3",
   "version": "1.0.0",
-  "description": "This is the second project for BCND by Udacity. Its main objective is to build a simple private blockchain that stores its blocks on LevelDB and uses simple validation methodology.",
+  "description": "This is the third project for BCND by Udacity. Its main objective is to create an API to POST new block and GET an existing block using HTTP request to the API",
   "main": "levelSandbox.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,12 +13,14 @@
   "author": "udacity, aabannay",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/aabannay/BCND-Project2/issues"
+    "url": "https://github.com/aabannay/BCND-Project3/issues"
   },
-  "homepage": "https://github.com/aabannay/BCND-Project2#readme",
+  "homepage": "https://github.com/aabannay/BCND-Project3#readme",
   "dependencies": {
     "JSON": "^1.0.0",
     "crypto-js": "^3.1.9-1",
+    "hapi": "^17.8.1",
+    "isemail": "^3.2.0",
     "level": "^4.0.0"
   }
 }
