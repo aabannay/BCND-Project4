@@ -181,25 +181,26 @@ class Blockchain{
 }
 
 
-let myBlockChain = new Blockchain();
+/*let myBlockChain = new Blockchain();
 (function theLoop (i) { 
     setTimeout(function () {
         //*************uncomment to test addition of blocks to DB**********************
-        /*let blockTest = new Block("Test Block - " + (i + 1));
+        let blockTest = new Block("Test Block - " + (i + 1));
         myBlockChain.addBlock(blockTest).then((result) => {
           //console.log("RESULT: "+result);
             i++;
             if (i < 10) theLoop(i);
         });
-        */
+        
 
         //*************uncomment to test validate block**********************
         /*myBlockChain.validateBlock(i+1).then((result) => {
           console.log("Block-" + (i+1) + ": " + result);
           i++;
           if (i < 10) theLoop(i);
-        });*/
+        });
         //************test validation of chain*****************************
         myBlockChain.validateChain();
     }, 1000);
-  })(0);
+  })(0);*/
+  
