@@ -50,11 +50,16 @@ class BlockController {
             path: '/api/block',
             handler: async (request, h) => {
                 console.log(request.payload.body);
-                let currentHeight =  await self.blockchain.getBlockHeight();
-                let newBlock = new BlockClass.Block(`Test Data #${currentHeight}`);
-                newBlock.height = currentHeight;
-                newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
-                let result = await self.blockchain.addBlock(newBlock)
+                let result = null;
+                if (request.payload.body) {
+                    let currentHeight =  await self.blockchain.getBlockHeight();
+                    let newBlock = new BlockClass.Block(`${request.payload.body}`);
+                    newBlock.height = currentHeight;
+                    newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
+                    result = await self.blockchain.addBlock(newBlock)
+                } else {
+                    result = 'FAILED: Failed to add a block because request did not contain the required body for the block.';
+                }
                 return result;
             } 
         });
