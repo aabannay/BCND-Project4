@@ -3,25 +3,12 @@
 |  =========================================================*/
 
 const SHA256 = require('crypto-js/sha256');
-
+const BlockClass = require('./Block.js');
 /* ===== levelSandbox with level ============================
 |  This is needed to presist the data using levelDB         |
 |  ========================================================*/
 
 const db = require('./levelSandbox');
-
-/* ===== Block Class ==============================
-|  Class with a constructor for block             |
-|  ===============================================*/
-
-class Block{
-  constructor(data){
-     this.hash = '',
-     this.height = 0,
-     this.body = data,
-     this.time = 0,
-     this.previousBlockHash = ''    }
-}
 
 /* ===== Blockchain Class ==========================
 |  Class with a constructor for new blockchain     |
@@ -43,7 +30,7 @@ class Blockchain{
 
   addGenesisBlock(){
     return new Promise((resolve, reject) => {
-      let genesis = new Block("First block in the chain - Genesis block");
+      let genesis = new BlockClass.Block("First block in the chain - Genesis block");
       genesis.time = new Date().getTime().toString().slice(0,-3);
       genesis.height = 1;
       genesis.previousBlockHash = '0x';
@@ -185,7 +172,7 @@ class Blockchain{
 (function theLoop (i) { 
     setTimeout(function () {
         //*************uncomment to test addition of blocks to DB**********************
-        let blockTest = new Block("Test Block - " + (i + 1));
+        let blockTest = new BlockClass.Block("Test Block - " + (i + 1));
         myBlockChain.addBlock(blockTest).then((result) => {
           //console.log("RESULT: "+result);
             i++;
