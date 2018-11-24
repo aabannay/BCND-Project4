@@ -74,6 +74,7 @@ function getBlocksCount() {
        .on('close', function () {
           //resolve with the count value
           resolve(blockCount);
+
       });
   });
 }

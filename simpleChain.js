@@ -20,6 +20,7 @@ class Blockchain{
       if (height === 0){
         this.addGenesisBlock().then((result) => {
           //TODO when genesis added
+          console.log('created a new blockchain and added gensis block');
         }).catch((err) => {
           console.log(err);
         });
@@ -167,7 +168,7 @@ class Blockchain{
   }    
 }
 
-
+module.exports.Blockchain = Blockchain;
 /*let myBlockChain = new Blockchain();
 (function theLoop (i) { 
     setTimeout(function () {
