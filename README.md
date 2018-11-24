@@ -1,6 +1,6 @@
 # Blockchain Data
 
-Blockchain has the potential to change the way that the world approaches data. Develop Blockchain skills by understanding the data model behind Blockchain by developing your own simplified private blockchain.
+Blockchain has the potential to change the way that the world approaches data. Develop Blockchain skills by understanding the data model behind Blockchain by developing a simplified private blockchain. Keeping the block held privately might have its own usages but being able to share it accross multiple platform will add greater value to the blockchain. To do this the blockchain should be able to recieve and send data using a simple method which is an API (Application Programming Interface) this will enable our blockchain to be integrated with web, mobile, and IoT devices. 
 
 ## Getting Started
 
@@ -25,6 +25,10 @@ npm install crypto-js --save
 npm install level --save
 ```
 
+- Install Hapi with --save flag
+```
+npm install hapi --save
+```
 ## Testing
 
 To test code:
@@ -59,3 +63,27 @@ for (var i = 0; i < inducedErrorBlocks.length; i++) {
 ```
 blockchain.validateChain();
 ```
+
+# Endpoint Documentation 
+## Using the API 
+
+### To GET a particular block
+a block can be requested using http GET request from the following link: 
+<http://localhost:8000/block/index>
+
+where index is the height of the requested block
+N.B. requested a block with negative, 0, or out of bound index will result in an error message. 
+
+### To POST a new block
+A new block can be created using http POST request with payload of the formate: 
+
+```
+{
+	"body": "the new block that will be created body should be here"
+}
+```
+and the link is: 
+<http://localhost:8000/block>
+
+#Node.js Hapi Framework
+More info about hapi frame work that was utilized to build the API can be found on <https://hapijs.com/>.
