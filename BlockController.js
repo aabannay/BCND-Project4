@@ -28,14 +28,24 @@ class BlockController {
             path: '/block/{index}',
             handler: async (request, h) => {
                 let result = null;
+                //this is the way hapi.js builds the response header
+                //fist include the response 
+                let response = null; 
                 let currentHeight = await self.blockchain.getBlockHeight();
                 if (request.params.index >= 1 && request.params.index <= currentHeight) {
                     result = await self.blockchain.getBlock(request.params.index);
+                    response = h.response(result);
+                    response.code(200);
                 }
                 else {
-                    result = 'Invalid index';
+
+                    result = {"response": `Invalid index: ${request.params.index}`};
+                    response = h.response(result);
+                    response.code(400);
                 }
-                return result; 
+                //set the content type to JSON so we ensure our response is recieved as JSON
+                response.type('application/json; charset=ISO-8859-1');
+                return response;
             }
         });
     }
@@ -49,18 +59,33 @@ class BlockController {
             method: 'POST',
             path: '/block',
             handler: async (request, h) => {
-                console.log(request.payload.body);
                 let result = null;
-                if (request.payload.body) {
-                    let currentHeight =  await self.blockchain.getBlockHeight();
-                    let newBlock = new BlockClass.Block(`${request.payload.body}`);
-                    newBlock.height = currentHeight;
-                    newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
-                    result = await self.blockchain.addBlock(newBlock)
+                //this is the way hapi.js builds the response header
+                //fist include the response 
+                let response = null; 
+                if (request.payload){
+                    if (request.payload.body) {
+                        let currentHeight =  await self.blockchain.getBlockHeight();
+                        let newBlock = new BlockClass.Block(`${request.payload.body}`);
+                        newBlock.height = currentHeight;
+                        newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
+                        result = await self.blockchain.addBlock(newBlock);
+                        response = h.response(result);
+                        response.code(201);
+                    } else {
+                        result = {"response": 'FAILED: Failed to add a block because request did not contain the expected body payload for the block.'};
+                        response = h.response(result);
+                        response.code(400); 
+                    }
                 } else {
-                    result = 'FAILED: Failed to add a block because request did not contain the required body for the block.';
+                    result = {"response": 'FAILED: Failed to add a block because request did not contain any payload.'};
+                    response = h.response(result);
+                    response.code(400);
                 }
-                return result;
+                 
+                //set the content type to JSON so we ensure our response is recieved as JSON
+                response.type('application/json; charset=ISO-8859-1');
+                return response;
             } 
         });
     }
