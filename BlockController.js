@@ -25,7 +25,7 @@ class BlockController {
         const self = this; 
         this.server.route({
             method: 'GET',
-            path: '/api/block/{index}',
+            path: '/block/{index}',
             handler: async (request, h) => {
                 let result = null;
                 let currentHeight = await self.blockchain.getBlockHeight();
@@ -47,7 +47,7 @@ class BlockController {
         const self = this; 
         this.server.route({
             method: 'POST',
-            path: '/api/block',
+            path: '/block',
             handler: async (request, h) => {
                 console.log(request.payload.body);
                 let result = null;
