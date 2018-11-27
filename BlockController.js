@@ -126,12 +126,18 @@ class BlockController {
                 let response = null; 
                 if (request.payload){
                     if (request.payload.address) {
+                        let code = null; 
+                        if (self.mempool.mempool[request.payload.address]) {
+                            code = 200; 
+                        } else {
+                            //response with code 201 to show that object was created.
+                            code = 201;
+                        }
                         //first create the validation request object
                         let theValidationRequest = new ValidationRequestClass.ValidationRequest(request.payload.address);
                         let requestToBeReturned = self.mempool.addRequestValidation(theValidationRequest);
                         response = h.response(requestToBeReturned);
-                        //response with code 201 to show that object was created.
-                        response.code(201);
+                        response.code(code);
                     } else {
                         result = {"response": 'FAILED: Failed to validate because request did not contain the expected address payload for the request.'};
                         response = h.response(result);
