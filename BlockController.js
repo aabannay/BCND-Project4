@@ -16,6 +16,7 @@ class BlockController {
         this.initializeMockData();
         this.getBlockByIndex();
         this.postNewBlock();
+        this.requestValidation();
     }
 
     /**
@@ -106,7 +107,39 @@ class BlockController {
         }
     }
 
-
+    /**
+     * Implements a POST endpoint validates request with JSON response
+     *
+     */
+    requestValidation() {
+        const self = this; 
+        this.server.route({
+            method: 'POST',
+            path: '/requestValidation',
+            handler: (request, h) => {
+                let result = null; 
+                let response = null; 
+                if (request.payload){
+                    if (request.payload.address) {
+                        response = h.response(request.payload.address);
+                        response.code(200);
+                    } else {
+                        result = {"response": 'FAILED: Failed to validate because request did not contain the expected address payload for the request.'};
+                        response = h.response(result);
+                        response.code(400); 
+                    }
+                } else {
+                    result = {"response": 'FAILED: Failed to request validation because request did not contain any payload.'};
+                    response = h.response(result);
+                    response.code(400);
+                }
+                 
+                //set the content type to JSON so we ensure our response is recieved as JSON
+                response.type('application/json; charset=ISO-8859-1');
+                return response;
+            }
+        });
+    }
 }
 
 /**
