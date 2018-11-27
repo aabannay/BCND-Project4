@@ -16,12 +16,14 @@ class BlockController {
     constructor(server) {
         this.server = server;
         this.blockchain = new BlockchainClass.Blockchain();
+        //mempool for the server
+        this.mempool = new MempoolClass.Mempool();
+        //methods
         this.initializeMockData();
         this.getBlockByIndex();
         this.postNewBlock();
         this.requestValidation();
-        //mempool for the server
-        this.mempool = new MempoolClass.Mempool();
+        this.validateMessageSignature();
     }
 
     /**
@@ -149,6 +151,52 @@ class BlockController {
                     response.code(400);
                 }
                  
+                //set the content type to JSON so we ensure our response is recieved as JSON
+                response.type('application/json; charset=ISO-8859-1');
+                return response;
+            }
+        });
+    }
+
+    /**
+     * Implements a POST endpoint to validate message signature and respond with JSON response
+     * The request should provide the address to validate the signature provided for the stored message.
+     */
+    validateMessageSignature() {
+        const self = this; 
+        this.server.route({
+            method: 'POST',
+            path: '/message-signature/validate',
+            handler: (request, h) => {
+                let result = null; 
+                let response = null; 
+                if (request.payload){
+                    if (request.payload.address) {
+                        if (request.payload.signature) {
+                            let validationResponse = self.mempool.validateRequestByWallet(request.payload.address, request.payload.signature);
+                            if (validationResponse.isValid) {
+                                console.log(validationResponse.isValid);
+                                result = self.mempool.mempoolValid[request.payload.address];
+                            } else {
+                                console.log(validationResponse.isValid);
+                                result = {"response": `FAILED: Failed to validate signature with message. Reason: ${validationResponse.reason}`};
+                                console.log(result);
+                            }
+                            response = h.response(result);
+                            response.code(200);
+                        } else {
+                            result = {"response": 'FAILED: Failed to validate because request did not contain the expected signature payload for the request.'}
+                        }
+                    } else {
+                        result = {"response": 'FAILED: Failed to validate because request did not contain the expected address payload for the request.'};
+                        response = h.response(result);
+                        response.code(400); 
+                    }
+                } else {
+                    result = {"response": 'FAILED: Failed to request validation because request did not contain any payload.'};
+                    response = h.response(result);
+                    response.code(400);
+                }
                 //set the content type to JSON so we ensure our response is recieved as JSON
                 response.type('application/json; charset=ISO-8859-1');
                 return response;
