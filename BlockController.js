@@ -1,6 +1,9 @@
 const SHA256 = require('crypto-js/sha256');
 const BlockClass = require('./Block.js');
 const BlockchainClass = require('./simpleChain');
+const ValidationRequestClass = require('./ValidationRequest');
+const MempoolClass = require('./Mempool');
+
 /**
  * Controller Definition to encapsulate routes to work with blocks
  */
@@ -17,6 +20,8 @@ class BlockController {
         this.getBlockByIndex();
         this.postNewBlock();
         this.requestValidation();
+        //mempool for the server
+        this.mempool = new MempoolClass.Mempool();
     }
 
     /**
@@ -121,7 +126,10 @@ class BlockController {
                 let response = null; 
                 if (request.payload){
                     if (request.payload.address) {
-                        response = h.response(request.payload.address);
+                        //first create the validation request object
+                        let theValidationRequest = new ValidationRequestClass.ValidationRequest(request.payload.address);
+                        let requestToBeReturned = self.mempool.addRequestValidation(theValidationRequest);
+                        response = h.response(requestToBeReturned);
                         response.code(200);
                     } else {
                         result = {"response": 'FAILED: Failed to validate because request did not contain the expected address payload for the request.'};
