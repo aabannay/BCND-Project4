@@ -165,10 +165,21 @@ class Blockchain{
         }); 
       }//for
     }); 
-  }    
-}
+  }
 
+  async getBlockByHash(hash){
+    let block = await db.getBlockByHash(hash);
+    if (block) {
+      return block; 
+    } else {
+      return null; 
+    }
+  }
+}
 module.exports.Blockchain = Blockchain;
+
+ 
+
 /*let myBlockChain = new Blockchain();
 (function theLoop (i) { 
     setTimeout(function () {

@@ -24,6 +24,7 @@ class BlockController {
         this.postNewBlock();
         this.requestValidation();
         this.validateMessageSignature();
+        this.getBlockByHash();
     }
 
     /**
@@ -159,6 +160,34 @@ class BlockController {
         });
     }
 
+    //get block by hash 
+    getBlockByHash() {
+        const self = this; 
+        this.server.route({
+            method: 'GET',
+            path: '/stars/hash:{hashValue}',
+            handler: async (request, h) => {
+                let result = null;
+                //this is the way hapi.js builds the response header
+                //fist include the response 
+                let response = null;
+                let block = null;  
+                block = await self.blockchain.getBlockByHash(request.params.hashValue);
+                if (block) {
+                    response = h.response(block);
+                    response.code(200);
+                }
+                else {
+                    result = {"response": `No block was found with given hash: ${request.params.hashValue}`};
+                    response = h.response(result);
+                    response.code(400);
+                }
+                //set the content type to JSON so we ensure our response is recieved as JSON
+                response.type('application/json; charset=ISO-8859-1');
+                return response;
+            }
+        });
+    }
 
     /**
      * Help method to inizialized Mock dataset, adds 10 test blocks to the blocks array
