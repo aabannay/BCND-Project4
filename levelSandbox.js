@@ -118,7 +118,6 @@ function getBlockByWalletAddress(address) {
            reject(err)
        })
        .on('close', function () {
-       			console.log('type inside ldb: ' + typeof(blocks));
            resolve(blocks);
        });
    });

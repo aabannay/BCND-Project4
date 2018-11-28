@@ -179,7 +179,6 @@ class Blockchain{
   async getBlockByWalletAddress(address) {
     let blocks = await db.getBlockByWalletAddress(address);
     if (blocks.length > 0) {
-      console.log('type inside bc: ' + typeof(blocks));
       return blocks;
     } else {
       return null; 

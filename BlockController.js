@@ -313,15 +313,11 @@ class BlockController {
                 let response = null;
                 let blocks = null;  
                 blocks = await self.blockchain.getBlockByWalletAddress(request.params.addressValue);
-                //parse blocks to create objects from the string...
-                console.log('type inside bcnt: ' + typeof(blocks));
-                //blocks = JSON.parse(blocks);
                 //console.log('type inside bcnt after parsing: ' + typeof(blocks));
                 if (blocks.length > 0) {
                     //decode the story here 
                     for (let i=0; i < blocks.length; i++) {
-                        console.log(blocks[i]);
-                        console.log(JSON.parse(blocks[i]));
+                        //convert the block to JSON to access its properties. 
                         blocks[i] = JSON.parse(blocks[i])
                         let encodedStory = blocks[i].body.star.story;
                         //create encoding buffer reading hex
