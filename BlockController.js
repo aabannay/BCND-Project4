@@ -26,6 +26,7 @@ class BlockController {
         this.validateMessageSignature();
         this.getBlockByHash();
         this.getBlockByWalletAddress();
+        this.getBlockByHeight();
     }
 
     /**
@@ -332,6 +333,49 @@ class BlockController {
                 }
                 else {
                     result = {"response": `No block was found with given wallet address: ${request.params.addressValue}`};
+                    response = h.response(result);
+                    response.code(400);
+                }
+                //set the content type to JSON so we ensure our response is recieved as JSON
+                response.type('application/json; charset=ISO-8859-1');
+                return response;
+            }
+        });
+    }
+
+    
+    /**
+     * Implement a GET Endpoint to retrieve a block by height"
+     */
+    getBlockByHeight() {
+        const self = this; 
+        this.server.route({
+            method: 'GET',
+            path: '/stars/{height}',
+            handler: async (request, h) => {
+                let result = null;
+                //this is the way hapi.js builds the response header
+                //fist include the response 
+                let response = null; 
+                let currentHeight = await self.blockchain.getBlockHeight();
+                if (request.params.height >= 1 && request.params.height <= currentHeight) {
+                    result = await self.blockchain.getBlock(request.params.height);
+                    //parse the result to access its properties
+                    result = JSON.parse(result);
+                    //now decode the values
+                    let encodedStory = result.body.star.story;
+                    //create encoding buffer reading hex
+                    let decodeBuffer = new Buffer(encodedStory, 'hex');
+                    //convert from buffer to ascii
+                    let decodedStory = decodeBuffer.toString('ascii');
+                    //now add the decoded story 
+                    result.body.star.storyDecoded = decodedStory; 
+                    response = h.response(result);
+                    response.code(200);
+                }
+                else {
+
+                    result = {"response": `Invalid height: ${request.params.height}`};
                     response = h.response(result);
                     response.code(400);
                 }
