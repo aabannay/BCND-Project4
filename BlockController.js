@@ -268,18 +268,15 @@ class BlockController {
                         if (request.payload.signature) {
                             let validationResponse = self.mempool.validateRequestByWallet(request.payload.address, request.payload.signature);
                             if (validationResponse.isValid) {
-                                console.log(validationResponse.isValid);
                                 result = self.mempool.mempoolValid[request.payload.address];
                                 //clean timeout array before returning validation object
                                 self.mempool.removeTimeoutRequest(request.payload.address);
                                 response = h.response(result);
                                 response.code(201);
                             } else {
-                                console.log(validationResponse.isValid);
                                 result = {"response": `FAILED: Failed to validate signature with message. Reason: ${validationResponse.reason}`};
                                 response = h.response(result);
                                 response.code(400);
-                                console.log(result);
                             }
                             
                         } else {
@@ -314,7 +311,6 @@ class BlockController {
                 let response = null;
                 let blocks = null;  
                 blocks = await self.blockchain.getBlockByWalletAddress(request.params.addressValue);
-                //console.log('type inside bcnt after parsing: ' + typeof(blocks));
                 if (blocks.length > 0) {
                     //decode the story here 
                     for (let i=0; i < blocks.length; i++) {

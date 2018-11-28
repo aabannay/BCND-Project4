@@ -48,16 +48,13 @@ class Mempool{
   //this method is used to clean the timeout requests array upon returning the validation object. 
   removeTimeoutRequest(address) {
     //use the delete keyword to remove the object by address
-    console.log(this.timeoutRequests);
     delete this.timeoutRequests[address];
-    console.log(this.timeoutRequests);
 
   }
 
   //this method will return the request object after it has been
   //created and therefore, no need to update the validation window.
   requestObject(request) {
-    console.log('request object called for request: ' + request);
     return request;   
   }
 

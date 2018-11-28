@@ -22,7 +22,6 @@ module.exports.addLevelDBData = addLevelDBData;
 
 // Get data from levelDB with key
 function getLevelDBData(key){
-	//console.log('inside getLevelDBData with key: ' + key);
 	return new Promise((resolve, reject) => {
 		db.get(key, function (err, value) {
 			if (err){
@@ -123,6 +122,7 @@ function getBlockByWalletAddress(address) {
    });
 }
 module.exports.getBlockByWalletAddress = getBlockByWalletAddress;
+
 /* ===== Testing ==============================================================|
 |  - Self-invoking function to add blocks to chain                             |
 |  - Learn more:                                                               |
