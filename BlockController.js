@@ -25,6 +25,7 @@ class BlockController {
         this.requestValidation();
         this.validateMessageSignature();
         this.getBlockByHash();
+        this.getBlockByWalletAddress();
     }
 
     /**
@@ -290,6 +291,51 @@ class BlockController {
                     }
                 } else {
                     result = {"response": 'FAILED: Failed to request validation because request did not contain any payload.'};
+                    response = h.response(result);
+                    response.code(400);
+                }
+                //set the content type to JSON so we ensure our response is recieved as JSON
+                response.type('application/json; charset=ISO-8859-1');
+                return response;
+            }
+        });
+    }
+
+    getBlockByWalletAddress() {
+        const self = this; 
+        this.server.route({
+            method: 'GET',
+            path: '/stars/address:{addressValue}',
+            handler: async (request, h) => {
+                let result = null;
+                //this is the way hapi.js builds the response header
+                //fist include the response 
+                let response = null;
+                let blocks = null;  
+                blocks = await self.blockchain.getBlockByWalletAddress(request.params.addressValue);
+                //parse blocks to create objects from the string...
+                console.log('type inside bcnt: ' + typeof(blocks));
+                //blocks = JSON.parse(blocks);
+                //console.log('type inside bcnt after parsing: ' + typeof(blocks));
+                if (blocks.length > 0) {
+                    //decode the story here 
+                    for (let i=0; i < blocks.length; i++) {
+                        console.log(blocks[i]);
+                        console.log(JSON.parse(blocks[i]));
+                        blocks[i] = JSON.parse(blocks[i])
+                        let encodedStory = blocks[i].body.star.story;
+                        //create encoding buffer reading hex
+                        let decodeBuffer = new Buffer(encodedStory, 'hex');
+                        //convert from buffer to ascii
+                        let decodedStory = decodeBuffer.toString('ascii');
+                        //now add the decoded story 
+                        blocks[i].body.star.storyDecoded = decodedStory; 
+                    }
+                    response = h.response(blocks);
+                    response.code(200);
+                }
+                else {
+                    result = {"response": `No block was found with given wallet address: ${request.params.addressValue}`};
                     response = h.response(result);
                     response.code(400);
                 }

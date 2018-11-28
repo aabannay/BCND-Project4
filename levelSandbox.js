@@ -102,7 +102,28 @@ function getBlockByHash(hash) {
 }
 module.exports.getBlockByHash = getBlockByHash;
 
-
+//this method will return block(s) by address IF ANY
+function getBlockByWalletAddress(address) {
+	 let self = this;
+   let blocks = [];
+   return new Promise(function(resolve, reject){
+       db.createReadStream()
+       .on('data', function (data){
+       			//convert data value into json then get hash before comparing.
+           if((JSON.parse(data.value)).body.address === address){
+               blocks.push(data.value);
+           }
+       })
+       .on('error', function (err) {
+           reject(err)
+       })
+       .on('close', function () {
+       			console.log('type inside ldb: ' + typeof(blocks));
+           resolve(blocks);
+       });
+   });
+}
+module.exports.getBlockByWalletAddress = getBlockByWalletAddress;
 /* ===== Testing ==============================================================|
 |  - Self-invoking function to add blocks to chain                             |
 |  - Learn more:                                                               |
