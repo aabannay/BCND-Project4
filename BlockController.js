@@ -72,16 +72,67 @@ class BlockController {
                 //fist include the response 
                 let response = null; 
                 if (request.payload){
-                    if (request.payload.body) {
-                        let currentHeight =  await self.blockchain.getBlockHeight();
-                        let newBlock = new BlockClass.Block(`${request.payload.body}`);
-                        newBlock.height = currentHeight;
-                        newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
-                        result = await self.blockchain.addBlock(newBlock);
-                        response = h.response(result);
-                        response.code(201);
+                    if (request.payload.address) {
+                        if (request.payload.star) {
+                            //ensure the star element is not an array
+                            if ( Object.prototype.toString.call(request.payload.star) === '[object Array]') {
+                                result = {"response": 'FAILED: Failed to add a block because request contained an array of stars. Expected only one star element'};
+                                response = h.response(result);
+                                response.code(400);
+                            } else {
+                                //check expected ESSENTIAL properties of star exist in the pay load
+                                if (request.payload.star.dec &&
+                                    request.payload.star.ra &&
+                                    request.payload.star.story) {
+                                        //now check if the request validation exist and valid
+                                        let isValid = this.mempool.verifyAddressRequest(request.payload.address);
+                                        if (isValid) {
+                                            let RA = request.payload.star.ra;
+                                            let DEC = request.payload.star.dec;
+                                            let MAG = '';
+                                            if (request.payload.star.mag) {
+                                                MAG = request.payload.star.mag;
+                                            }
+                                            let CEN = '';
+                                            if (request.payload.star.cen) {
+                                                CEN = request.payload.star.cen;
+                                            }
+                                            let body = {
+                                                address: request.payload.address,
+                                                star: {
+                                                      ra: RA,
+                                                      dec: DEC,
+                                                      mag: MAG,
+                                                      cen: CEN,
+                                                      story: Buffer(request.payload.star.story).toString('hex')
+                                                      } 
+                                                };
+                                            let currentHeight =  await self.blockchain.getBlockHeight();
+                                            let newBlock = new BlockClass.Block(body);
+                                            newBlock.height = currentHeight;
+                                            newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
+                                            result = await self.blockchain.addBlock(newBlock);
+                                            response = h.response(result);
+                                            response.code(201);
+                                        } else {
+                                            result = {"response": 'FAILED: Failed to add a block because request failed to obtain request validation either due to timeout or validation does not exist'};
+                                            response = h.response(result);
+                                            response.code(400);
+                                        }
+                                        
+                                } else {
+                                    result = {"response": 'FAILED: Failed to add a block because request did not contain star essential payload i.e. dec, ra, and story'};
+                                    response = h.response(result);
+                                    response.code(400);
+                                }
+                            }
+                        } else {
+                            result = {"response": 'FAILED: Failed to add a block because request did not contain the expected star payload for the block.'};
+                            response = h.response(result);
+                            response.code(400);
+                        }
                     } else {
-                        result = {"response": 'FAILED: Failed to add a block because request did not contain the expected body payload for the block.'};
+                        result = {"response": 'FAILED: Failed to add a block because request did not contain the expected address payload for the block.'};
                         response = h.response(result);
                         response.code(400); 
                     }
@@ -97,6 +148,7 @@ class BlockController {
             } 
         });
     }
+
 
     /**
      * Help method to inizialized Mock dataset, adds 10 test blocks to the blocks array

@@ -19,6 +19,8 @@ class Mempool{
       //the request is already in mempool so return the request object
       console.log('existing request');
       //return the existing request in the database NOT the new request with the same address!
+      //update the time first then return 
+      this.updateValidationWindow(this.mempool[request.walletAddress]);
       return this.requestObject(this.mempool[request.walletAddress]);
     } else {
       this.mempool[request.walletAddress] = request;
@@ -39,6 +41,8 @@ class Mempool{
   removeValidationRequest(address){
     //use the delete keyword to remove teh object by address
     delete this.mempool[address];
+    //also it should be removed from. the validation pool. it should stay here for 5 minutes, too. 
+    delete this.mempoolValid[address];
   }
 
   //this method is used to clean the timeout requests array upon returning the validation object. 
@@ -104,6 +108,17 @@ class Mempool{
       //the validation request is not in mempool (maybe never existed or removed due timeout)
       response.reason = 'request is not in mempool'
       return response; 
+    }
+  }
+
+  verifyAddressRequest(address) {
+    let request = this.mempoolValid[address];
+    //if request is still in mempool valid then it is valid and within timewindow i.e. it was not removed due to timeout. 
+    if (request) {
+      return true; 
+    } else {
+      //there is no validation request in the valid pool with this address or it was removed from there due to timeout
+      return false; 
     }
   }
 }
