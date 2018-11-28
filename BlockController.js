@@ -112,7 +112,17 @@ class BlockController {
                                             newBlock.height = currentHeight;
                                             newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
                                             result = await self.blockchain.addBlock(newBlock);
-                                            response = h.response(result);
+                                            //add the decoded story to the block before returning it: 
+                                            //first get the encoded story
+                                            let resultJSON = JSON.parse(result)
+                                            let encodedStory = resultJSON.body.star.story;
+                                            //create encoding buffer reading hex
+                                            let decodeBuffer = new Buffer(encodedStory, 'hex');
+                                            //convert from buffer to ascii
+                                            let decodedStory = decodeBuffer.toString('ascii');
+                                            //now add the decoded story 
+                                            resultJSON.body.star.storyDecoded = decodedStory; 
+                                            response = h.response(resultJSON);
                                             response.code(201);
                                         } else {
                                             result = {"response": 'FAILED: Failed to add a block because request failed to obtain request validation either due to timeout or validation does not exist'};
