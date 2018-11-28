@@ -177,13 +177,18 @@ class BlockController {
                             if (validationResponse.isValid) {
                                 console.log(validationResponse.isValid);
                                 result = self.mempool.mempoolValid[request.payload.address];
+                                //clean timeout array before returning validation object
+                                self.mempool.removeTimeoutRequest(request.payload.address);
+                                response = h.response(result);
+                                response.code(201);
                             } else {
                                 console.log(validationResponse.isValid);
                                 result = {"response": `FAILED: Failed to validate signature with message. Reason: ${validationResponse.reason}`};
+                                response = h.response(result);
+                                response.code(400);
                                 console.log(result);
                             }
-                            response = h.response(result);
-                            response.code(200);
+                            
                         } else {
                             result = {"response": 'FAILED: Failed to validate because request did not contain the expected signature payload for the request.'}
                         }

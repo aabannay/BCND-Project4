@@ -37,7 +37,17 @@ class Mempool{
   }
 
   removeValidationRequest(address){
-    this.mempool.splice( this.mempool.indexOf(address), 1 );
+    //use the delete keyword to remove teh object by address
+    delete this.mempool[address];
+  }
+
+  //this method is used to clean the timeout requests array upon returning the validation object. 
+  removeTimeoutRequest(address) {
+    //use the delete keyword to remove the object by address
+    console.log(this.timeoutRequests);
+    delete this.timeoutRequests[address];
+    console.log(this.timeoutRequests);
+
   }
 
   //this method will return the request object after it has been
@@ -56,6 +66,8 @@ class Mempool{
   validateRequestByWallet(address, signature) {
     // get the request from mempool 
     let request = this.mempool[address];
+    //response object to be returned by this function 
+    //it contain the validation boolean value in addition to a reason IF validation fails.   
     let response = {
       isValid: false, 
       reason: ''
@@ -93,10 +105,7 @@ class Mempool{
       response.reason = 'request is not in mempool'
       return response; 
     }
-    
-
   }
-
 }
 
 module.exports.Mempool = Mempool; 
