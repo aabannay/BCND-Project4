@@ -204,7 +204,15 @@ class BlockController {
                 let block = null;  
                 block = await self.blockchain.getBlockByHash(request.params.hashValue);
                 if (block) {
-                    response = h.response(block);
+                    let resultJSON = JSON.parse(block)
+                    let encodedStory = resultJSON.body.star.story;
+                    //create encoding buffer reading hex
+                    let decodeBuffer = new Buffer(encodedStory, 'hex');
+                    //convert from buffer to ascii
+                    let decodedStory = decodeBuffer.toString('ascii');
+                    //now add the decoded story 
+                    resultJSON.body.star.storyDecoded = decodedStory; 
+                    response = h.response(resultJSON);
                     response.code(200);
                 }
                 else {
