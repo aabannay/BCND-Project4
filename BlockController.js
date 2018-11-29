@@ -96,62 +96,71 @@ class BlockController {
                                 if (request.payload.star.dec &&
                                     request.payload.star.ra &&
                                     request.payload.star.story) {
-                                        //now check if the request validation exist and valid
-                                        let isValid = this.mempool.verifyAddressRequest(request.payload.address);
-                                        if (isValid) {
-                                            let RA = request.payload.star.ra;
-                                            let DEC = request.payload.star.dec;
-                                            let MAG = null;
-                                            if (request.payload.star.mag) {
-                                                MAG = request.payload.star.mag;
-                                            }
-                                            let CEN = null;
-                                            if (request.payload.star.cen) {
-                                                CEN = request.payload.star.cen;
-                                            }
-                                            let body = {
-                                                address: request.payload.address,
-                                                star: {
-                                                      ra: RA,
-                                                      dec: DEC,
-                                                      mag: MAG,
-                                                      cen: CEN,
-                                                      story: Buffer(request.payload.star.story).toString('hex')
-                                                      } 
-                                                };
-                                            //remove mag and cen if they are null
-                                            if (CEN === null) {
-                                                delete body.star.cen;
-                                            }
-                                            if (MAG === null) {
-                                                delete body.star.mag;
-                                            }
-                                            let currentHeight =  await self.blockchain.getBlockHeight();
-                                            let newBlock = new BlockClass.Block(body);
-                                            newBlock.height = currentHeight;
-                                            newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
-                                            result = await self.blockchain.addBlock(newBlock);
-                                            //add the decoded story to the block before returning it: 
-                                            //first get the encoded story
-                                            let resultJSON = JSON.parse(result)
-                                            let encodedStory = resultJSON.body.star.story;
-                                            //create encoding buffer reading hex
-                                            let decodeBuffer = new Buffer(encodedStory, 'hex');
-                                            //convert from buffer to ascii
-                                            let decodedStory = decodeBuffer.toString('ascii');
-                                            //now add the decoded story 
-                                            resultJSON.body.star.storyDecoded = decodedStory; 
-                                            response = h.response(resultJSON);
-                                            response.code(201);
-                                            //remove the validation so no other star can be added using this validation.
-                                            if (self.mempool.removeValidationRequest(request.payload.address))
-                                                console.log('removed validation request upon adding star block');
+                                    //check length of story in byte no more than 500 and in words no more than 250.
+                                    //also check the story contains ascii only characters. 
+                                    if (Buffer.byteLength(request.payload.star.story, 'ascii') > 500 || 
+                                        request.payload.star.story.split(' ').length > 250 ||
+                                        !(/^[\x00-\x7F]*$/).test(request.payload.star.story)) {
+                                            result = {"response": 'FAILED: Failed to add a block because story is too long (250 words | 500 bytes) or it contains non-ASCII characters'};
+                                            response = h.response(result);
+                                            response.code(400);
+                                    } else {
+                                            //now check if the request validation exist and valid
+                                            let isValid = this.mempool.verifyAddressRequest(request.payload.address);
+                                            if (isValid) {
+                                                let RA = request.payload.star.ra;
+                                                let DEC = request.payload.star.dec;
+                                                let MAG = null;
+                                                if (request.payload.star.mag) {
+                                                    MAG = request.payload.star.mag;
+                                                }
+                                                let CEN = null;
+                                                if (request.payload.star.cen) {
+                                                    CEN = request.payload.star.cen;
+                                                }
+                                                let body = {
+                                                    address: request.payload.address,
+                                                    star: {
+                                                          ra: RA,
+                                                          dec: DEC,
+                                                          mag: MAG,
+                                                          cen: CEN,
+                                                          story: Buffer(request.payload.star.story).toString('hex')
+                                                          } 
+                                                    };
+                                                //remove mag and cen if they are null
+                                                if (CEN === null) {
+                                                    delete body.star.cen;
+                                                }
+                                                if (MAG === null) {
+                                                    delete body.star.mag;
+                                                }
+                                                let currentHeight =  await self.blockchain.getBlockHeight();
+                                                let newBlock = new BlockClass.Block(body);
+                                                newBlock.height = currentHeight;
+                                                newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
+                                                result = await self.blockchain.addBlock(newBlock);
+                                                //add the decoded story to the block before returning it: 
+                                                //first get the encoded story
+                                                let resultJSON = JSON.parse(result)
+                                                let encodedStory = resultJSON.body.star.story;
+                                                //create encoding buffer reading hex
+                                                let decodeBuffer = new Buffer(encodedStory, 'hex');
+                                                //convert from buffer to ascii
+                                                let decodedStory = decodeBuffer.toString('ascii');
+                                                //now add the decoded story 
+                                                resultJSON.body.star.storyDecoded = decodedStory; 
+                                                response = h.response(resultJSON);
+                                                response.code(201);
+                                                //remove the validation so no other star can be added using this validation.
+                                                if (self.mempool.removeValidationRequest(request.payload.address))
+                                                    console.log('removed validation request upon adding star block');
                                         } else {
                                             result = {"response": 'FAILED: Failed to add a block because request failed to obtain request validation either due to timeout or validation does not exist'};
                                             response = h.response(result);
                                             response.code(400);
                                         }
-                                        
+                                    }
                                 } else {
                                     result = {"response": 'FAILED: Failed to add a block because request did not contain star essential payload i.e. dec, ra, and story'};
                                     response = h.response(result);
