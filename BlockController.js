@@ -143,6 +143,9 @@ class BlockController {
                                             resultJSON.body.star.storyDecoded = decodedStory; 
                                             response = h.response(resultJSON);
                                             response.code(201);
+                                            //remove the validation so no other star can be added using this validation.
+                                            if (self.mempool.removeValidationRequest(request.payload.address))
+                                                console.log('removed validation request upon adding star block');
                                         } else {
                                             result = {"response": 'FAILED: Failed to add a block because request failed to obtain request validation either due to timeout or validation does not exist'};
                                             response = h.response(result);

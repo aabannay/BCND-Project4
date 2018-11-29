@@ -118,6 +118,15 @@ class Mempool{
       return false; 
     }
   }
+
+  removeValidationRequest(address) {
+    delete this.mempoolValid[address];
+    if (!this.mempoolValid[address]) {
+      return true;
+    } else {
+      return false; 
+    }
+  } 
 }
 
 module.exports.Mempool = Mempool; 
