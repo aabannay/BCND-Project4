@@ -101,11 +101,11 @@ class BlockController {
                                         if (isValid) {
                                             let RA = request.payload.star.ra;
                                             let DEC = request.payload.star.dec;
-                                            let MAG = '';
+                                            let MAG = null;
                                             if (request.payload.star.mag) {
                                                 MAG = request.payload.star.mag;
                                             }
-                                            let CEN = '';
+                                            let CEN = null;
                                             if (request.payload.star.cen) {
                                                 CEN = request.payload.star.cen;
                                             }
@@ -119,6 +119,13 @@ class BlockController {
                                                       story: Buffer(request.payload.star.story).toString('hex')
                                                       } 
                                                 };
+                                            //remove mag and cen if they are null
+                                            if (CEN === null) {
+                                                delete body.star.cen;
+                                            }
+                                            if (MAG === null) {
+                                                delete body.star.mag;
+                                            }
                                             let currentHeight =  await self.blockchain.getBlockHeight();
                                             let newBlock = new BlockClass.Block(body);
                                             newBlock.height = currentHeight;
