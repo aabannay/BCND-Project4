@@ -45,6 +45,15 @@ class BlockController {
                 let currentHeight = await self.blockchain.getBlockHeight();
                 if (request.params.index >= 1 && request.params.index <= currentHeight) {
                     result = await self.blockchain.getBlock(request.params.index);
+                    result = JSON.parse(result);
+                    //now decode the values
+                    let encodedStory = result.body.star.story;
+                    //create encoding buffer reading hex
+                    let decodeBuffer = new Buffer(encodedStory, 'hex');
+                    //convert from buffer to ascii
+                    let decodedStory = decodeBuffer.toString('ascii');
+                    //now add the decoded story 
+                    result.body.star.storyDecoded = decodedStory; 
                     response = h.response(result);
                     response.code(200);
                 }
